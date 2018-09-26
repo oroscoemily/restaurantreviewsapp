@@ -35,18 +35,21 @@ self.addEventListener('fetch', function(evt){
 	evt.respondWith(
 		caches.match(evt.request.url).then(function(response){
             if (response){
-                console.log("Found " + evt.reponse);
+                console.log("Found " + evt.response);
                 return response
 
             } else{
                 console.log(evt.response + " not found. Fetching...");
                 return fetch(evt.request.url)
                 .then(function(response){
+                    if(!response || response.status !== 200 || response.type !== 'basic') {
+                        return response;
+                    };
                     const cloneResponse = response.clone()
                     caches.open('v1').then(function(cache) {
                         return cache.put(evt.request, cloneResponse);
                 })
-                    return reponse
+                    return response
             })   
 		
                 .catch(function(err){
